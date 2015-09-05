@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using Zephyros.Framework.EventArgs;
-using Zephyros.Framework.Interfaces;
-
+﻿
 namespace Zephyros.Framework.Manager
 {
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel;
+    using System.Reflection;
+    using Zephyros.Framework.EventArgs;
+    using Zephyros.Framework.Interfaces;
+
     public class GlobalVariableManager
     {
         /// <summary>

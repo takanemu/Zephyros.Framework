@@ -1,21 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using Zephyros.Framework.Attributes;
-using Zephyros.Framework.EventArgs;
-using Zephyros.Framework.Interfaces;
-
+﻿
 namespace Zephyros.Framework.Mixins
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Reflection;
+    using System.Runtime.CompilerServices;
+    using Zephyros.Framework.Attributes;
+    using Zephyros.Framework.EventArgs;
+    using Zephyros.Framework.Interfaces;
+    using Zephyros.Framework.Utility;
+
     public static class ViewModelVariableShareProvider
     {
         internal delegate void VariableChangeDelegate(VariableChangeEventArgs args);
         static ConditionalWeakTable<MViewModelVariableShareProvider, Fields> table;
 
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
         static ViewModelVariableShareProvider()
         {
             table = new ConditionalWeakTable<MViewModelVariableShareProvider, Fields>();
@@ -29,16 +31,14 @@ namespace Zephyros.Framework.Mixins
         public static void Construction(this MViewModelVariableShareProvider map, object target)
         {
             Type type = target.GetType();
-            MethodInfo[] methods = type.GetMethods();
+            MethodInfo[] methods = ReflectionAccelerator.GetMethods(type);
 
             foreach (MethodInfo method in methods)
             {
                 if (method.IsDefined(typeof(GlobalVariableManagerAttribute), false))
                 {
-                    // 検査キーを取得する
-                    Enum ekey = GlobalVariableManagerAttribute.GetDataKey(method);
+                    Enum ekey = GetDataKey(method);
 
-                    // ekeyの更新があった時だけ更新イベントを返す
                     if (ekey != null)
                     {
                         var dmap = table.GetOrCreateValue(map).DelegateMap;
@@ -47,6 +47,7 @@ namespace Zephyros.Framework.Mixins
                         {
                             var dg = (VariableChangeDelegate)Delegate.CreateDelegate(typeof(VariableChangeDelegate), target, method);
 
+                            // デリゲートとして登録
                             dmap.Add(ekey, dg);
                         }
                     }
@@ -54,18 +55,28 @@ namespace Zephyros.Framework.Mixins
             }
         }
 
+        public static Enum GetDataKey(MethodInfo minfo)
+        {
+            var items = (GlobalVariableManagerAttribute[])minfo.GetCustomAttributes(typeof(GlobalVariableManagerAttribute), false);
+
+            if (items.Length == 0)
+            {
+                return null;
+            }
+            GlobalVariableManagerAttribute my = (GlobalVariableManagerAttribute)items[0];
+
+            return (Enum)my.Key;
+        }
+
         public static void CallFunction(this MViewModelVariableShareProvider map, VariableChangeEventArgs args)
         {
             var dmap = table.GetOrCreateValue(map).DelegateMap;
 
-            if (dmap.ContainsKey(args.Key))
-            {
-                VariableChangeDelegate dg;
+            VariableChangeDelegate dg;
 
-                if (dmap.TryGetValue(args.Key, out dg))
-                {
-                    dg(args);
-                }
+            if (dmap.TryGetValue(args.Key, out dg))
+            {
+                dg(args);
             }
         }
     }

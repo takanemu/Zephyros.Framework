@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Zephyros.Framework.Interfaces;
-using Zephyros.Framework.Manager;
-using Zephyros.Framework.Mixins;
-
+﻿
 namespace Zephyros.Framework.Core
 {
+    using Zephyros.Framework.Interfaces;
+    using Zephyros.Framework.Manager;
+    using Zephyros.Framework.Mixins;
+
     public class ViewModelBase : Livet.ViewModel, ICleanup
     {
         public void Initialize()

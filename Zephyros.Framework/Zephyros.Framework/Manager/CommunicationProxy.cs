@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Zephyros.Framework.EventArgs;
-
+﻿
 namespace Zephyros.Framework.Manager
 {
+    using System;
+    using Zephyros.Framework.EventArgs;
+
     public class CommunicationProxy
     {
         /// <summary>

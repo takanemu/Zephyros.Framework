@@ -71,6 +71,7 @@
     <Compile Include="Mixins\ViewModelCommunicationProvider.cs" />
     <Compile Include="Mixins\ViewModelVariableShareProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utility\ReflectionAccelerator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
