@@ -25,7 +25,7 @@ namespace Zephyros.Framework.Mixins
 
         private sealed class Fields
         {
-            internal Dictionary<Enum, CommunicationProxyDelegate> DelegateMap = new Dictionary<Enum, CommunicationProxyDelegate>();
+            internal Dictionary<int, CommunicationProxyDelegate> DelegateMap = new Dictionary<int, CommunicationProxyDelegate>();
         }
 
         public static void Construction(this MViewModelCommunicationProvider map, object target)
@@ -37,35 +37,35 @@ namespace Zephyros.Framework.Mixins
             {
                 if (method.IsDefined(typeof(CommunicationProxyAttribute), false))
                 {
-                    Enum ekey = GetDataKey(method);
+                    Enum ekey = (Enum)GetDataKey(method);
 
                     if (ekey != null)
                     {
+                        int index = Convert.ToInt32(ekey);
+
                         var dmap = table.GetOrCreateValue(map).DelegateMap;
 
-                        if (!dmap.ContainsKey(ekey))
+                        if (!dmap.ContainsKey(index))
                         {
                             var dg = (CommunicationProxyDelegate)Delegate.CreateDelegate(typeof(CommunicationProxyDelegate), target, method);
 
                             // デリゲートとして登録
-                            dmap.Add(ekey, dg);
+                            dmap.Add(index, dg);
                         }
                     }
                 }
             }
         }
 
-        public static Enum GetDataKey(MethodInfo minfo)
+        public static object GetDataKey(MethodInfo minfo)
         {
             var items = (CommunicationProxyAttribute[])minfo.GetCustomAttributes(typeof(CommunicationProxyAttribute), false);
 
-            if (items.Length == 0)
+            if(items.Length > 0)
             {
-                return null;
+                return items[0].Key;
             }
-            CommunicationProxyAttribute my = (CommunicationProxyAttribute)items[0];
-
-            return (Enum)my.Key;
+            return null;
         }
 
         public static void CallFunction(this MViewModelCommunicationProvider map, MessageReceiveEventArgs args)

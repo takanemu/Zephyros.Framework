@@ -24,6 +24,7 @@ namespace Zephyros.Framework.Demo.ViewModels
             for(var i = 0; i < 10000; i++)
             {
                 CommunicationProxy.Instance.PostMessage(CommunicationKeyEnum.TEST99);
+                GlobalVariableManager.Instance.SetValue(GlobalVariableKeyEnum.TEST, i);
             }
             //CommunicationProxy.Instance.PostMessage(CommunicationKeyEnum.TEST);
             //GlobalVariableManager.Instance.SetValue(GlobalVariableKeyEnum.TEST, false);
@@ -455,11 +456,10 @@ namespace Zephyros.Framework.Demo.ViewModels
         {
         }
 
-        /*
         [GlobalVariableManager(Key=GlobalVariableKeyEnum.TEST)]
         public async void TestObserver(VariableChangeEventArgs e)
         {
             await Task.Run(() => System.Threading.Thread.Sleep(1000));
-        }*/
+        }
     }
 }

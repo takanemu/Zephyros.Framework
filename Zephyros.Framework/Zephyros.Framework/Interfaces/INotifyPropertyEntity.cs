@@ -12,6 +12,6 @@ namespace Zephyros.Framework.Interfaces
         /// <summary>
         /// キー
         /// </summary>
-        Enum Key { get; set; }
+        int Key { get; set; }
     }
 }

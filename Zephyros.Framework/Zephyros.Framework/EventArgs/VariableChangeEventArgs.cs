@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Zephyros.Framework.EventArgs
 {
-    public class VariableChangeEventArgs
+    public class VariableChangeEventArgs : System.EventArgs
     {
         /// <summary>
         /// 更新フラグ(true=更新/false=新規)
@@ -17,7 +17,7 @@ namespace Zephyros.Framework.EventArgs
         /// <summary>
         /// データ種別(格納キー)
         /// </summary>
-        public Enum Key { get; set; }
+        public int Key { get; set; }
 
         /// <summary>
         /// 更新前データ値

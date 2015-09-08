@@ -44,7 +44,7 @@ namespace Zephyros.Framework.Manager
         /// <summary>
         /// 値の格納テーブル
         /// </summary>
-        private Dictionary<Enum, object> map = new Dictionary<Enum, object>();
+        private Dictionary<int, object> map = new Dictionary<int, object>();
 
         /// <summary>
         /// データの初期化（更新イベントは発生しない）
@@ -53,49 +53,42 @@ namespace Zephyros.Framework.Manager
         /// <param name="value">格納データ</param><br/>
         public void InitValue(Enum key, object value)
         {
+            int index = Convert.ToInt32(key);
+
             if (value is INotifyPropertyEntity)
             {
                 INotifyPropertyEntity iv = (INotifyPropertyEntity)value;
 
-                if (this.map.ContainsKey(key))
+                object old;
+
+                if (this.map.TryGetValue(index, out old))
                 {
-                    // イベントハンドラを解除
-                    INotifyPropertyEntity old = (INotifyPropertyEntity)this.map[key];
-
-                    old.PropertyChanged -= this.PropertyChangedHandler;
-
-                    // イベントハンドラを再追加
-                    iv.PropertyChanged += new PropertyChangedEventHandler(this.PropertyChangedHandler);
-
-                    // キーを設定
-                    iv.Key = key;
-
-                    // 値を上書き
-                    this.map[key] = value;
+                    if (old is INotifyPropertyEntity)
+                    {
+                        // イベントハンドラを解除
+                        ((INotifyPropertyEntity)old).PropertyChanged -= this.PropertyChangedHandler;
+                    }
                 }
-                else
-                {
-                    // イベントハンドラを追加
-                    iv.PropertyChanged += new PropertyChangedEventHandler(this.PropertyChangedHandler);
+                // イベントハンドラを追加
+                iv.PropertyChanged += new PropertyChangedEventHandler(this.PropertyChangedHandler);
 
-                    // キーを設定
-                    iv.Key = key;
+                // キーを設定
+                iv.Key = index;
 
-                    // キーと値を追加
-                    this.map.Add(key, value);
-                }
+                // キーと値を追加
+                this.map.Add(index, value);
             }
             else
             {
-                if (this.map.ContainsKey(key))
+                if (this.map.ContainsKey(index))
                 {
                     // 値を上書き
-                    this.map[key] = value;
+                    this.map[index] = value;
                 }
                 else
                 {
                     // キーと値を追加
-                    this.map.Add(key, value);
+                    this.map.Add(index, value);
                 }
             }
         }
@@ -122,58 +115,51 @@ namespace Zephyros.Framework.Manager
         /// <param name="canRaisePropertyChanged">プロパティ変更通知強制実行可否</param>
         public void SetValue(Enum key, object value, bool canRaisePropertyChanged = false, string unique = null)
         {
+            int index = Convert.ToInt32(key);
+
             if (value is INotifyPropertyEntity)
             {
                 // INotifyPropertyChangedインターフェースを実装したクラスは、更新でイベントの発行は行わない。
                 INotifyPropertyEntity iv = (INotifyPropertyEntity)value;
 
-                if (this.map.ContainsKey(key))
+                object old;
+
+                if (this.map.TryGetValue(index, out old))
                 {
-                    // イベントハンドラを解除
-                    INotifyPropertyEntity old = (INotifyPropertyEntity)this.map[key];
-
-                    old.PropertyChanged -= this.PropertyChangedHandler;
-
-                    // イベントハンドラを再追加
-                    iv.PropertyChanged += new PropertyChangedEventHandler(this.PropertyChangedHandler);
-
-                    // キーを設定
-                    iv.Key = key;
-
-                    // 値を上書き
-                    this.map[key] = value;
+                    if(old is INotifyPropertyEntity)
+                    {
+                        // イベントハンドラを解除
+                        ((INotifyPropertyEntity)old).PropertyChanged -= this.PropertyChangedHandler;
+                    }
                 }
-                else
-                {
-                    // イベントハンドラを追加
-                    iv.PropertyChanged += new PropertyChangedEventHandler(this.PropertyChangedHandler);
+                // イベントハンドラを追加
+                iv.PropertyChanged += new PropertyChangedEventHandler(this.PropertyChangedHandler);
 
-                    // キーを設定
-                    iv.Key = key;
+                // キーを設定
+                iv.Key = index;
 
-                    // キーと値を追加
-                    this.map.Add(key, value);
-                }
+                // キーと値を追加
+                this.map.Add(index, value);
             }
             else
             {
                 // 通常オブジェクトの設定では、更新イベントの発行は行われる。
                 VariableChangeEventArgs e = new VariableChangeEventArgs
                 {
-                    Key = key,
+                    Key = index,
                     Latest = value,
                     UniqueKey = unique,
                 };
-                if (this.map.ContainsKey(key))
+                if (this.map.ContainsKey(index))
                 {
                     // 更新
                     e.Change = true;
 
                     // 変更前の値を退避
-                    e.Old = this.map[key];
+                    e.Old = this.map[index];
 
                     // 値を上書き
-                    this.map[key] = value;
+                    this.map[index] = value;
                 }
                 else
                 {
@@ -181,17 +167,17 @@ namespace Zephyros.Framework.Manager
                     e.Change = false;
 
                     // キーと値を追加
-                    this.map.Add(key, value);
+                    this.map.Add(index, value);
                 }
 
                 // 値が更新された時だけイベントを発生する。
                 if (e.Old != null && e.Old.Equals(e.Latest) == false)
                 {
-                    this.OnPropertyChange(e);    // イベント発火
+                    this.OnPropertyChange(e);   // イベント発火
                 }
                 else if (e.Latest != null && e.Latest.Equals(e.Old) == false)
                 {
-                    this.OnPropertyChange(e);    // イベント発火
+                    this.OnPropertyChange(e);   // イベント発火
                 }
                 else if (canRaisePropertyChanged)
                 {
@@ -207,9 +193,11 @@ namespace Zephyros.Framework.Manager
         /// <param name="key">データ格納キー</param>
         public void Remove(Enum key)
         {
-            if (this.map.ContainsKey(key))
+            int index = Convert.ToInt32(key);
+
+            if (this.map.ContainsKey(index))
             {
-                this.map.Remove(key);
+                this.map.Remove(index);
             }
         }
 
@@ -247,9 +235,11 @@ namespace Zephyros.Framework.Manager
         /// <returns>格納データ</returns>
         public object GetValue(Enum key)
         {
-            if (this.ContainsKey(key))
+            int index = Convert.ToInt32(key);
+
+            if (this.map.ContainsKey(index))
             {
-                return this.map[key];
+                return this.map[index];
             }
             return null;
         }
@@ -262,9 +252,11 @@ namespace Zephyros.Framework.Manager
         /// <returns>格納データ</returns>
         public ReturnType GetValue<ReturnType>(Enum key)
         {
-            if (this.ContainsKey(key))
+            int index = Convert.ToInt32(key);
+
+            if (this.map.ContainsKey(index))
             {
-                return (ReturnType)this.map[key];
+                return (ReturnType)this.map[index];
             }
             return default(ReturnType);
         }
@@ -276,7 +268,9 @@ namespace Zephyros.Framework.Manager
         /// <returns>trueなら格納されている</returns>
         public bool ContainsKey(Enum key)
         {
-            return this.map.ContainsKey(key);
+            int index = Convert.ToInt32(key);
+
+            return this.map.ContainsKey(index);
         }
 
         /// <summary>

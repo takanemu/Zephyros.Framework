@@ -44,62 +44,16 @@ namespace Zephyros.Framework.Manager
         /// <param name="message">メッセージ</param><br/>
         /// <param name="parameter">パラメーター</param><br/>
         /// <param name="unique">自己イベント判別用ユニークキー</param>
-        public void PostMessage(Enum address, string message, object parameter, string unique)
+        public void PostMessage(Enum address, string message = null, object parameter = null, string unique = null)
         {
             var e = new MessageReceiveEventArgs
             {
-                Address = address,
+                Address = Convert.ToInt32(address),
                 Message = message,
                 Parameter = parameter,
                 UniqueKey = unique,
             };
             this.OnMessageReceive(e);
-        }
-
-        /// <summary>
-        /// メッセージ送信<br/>
-        /// </summary>
-        /// <param name="address">宛先</param><br/>
-        /// <param name="message">メッセージ</param><br/>
-        /// <param name="parameter">パラメーター</param><br/>
-        public void PostMessage(Enum address, string message, object parameter)
-        {
-            MessageReceiveEventArgs e = new MessageReceiveEventArgs();
-
-            e.Address = address;
-            e.Message = message;
-            e.Parameter = parameter;
-
-            this.OnMessageReceive(e);
-        }
-
-        /// <summary>
-        /// メッセージ送信<br/>
-        /// </summary>
-        /// <param name="address">宛先</param><br/>
-        public void PostMessage(Enum address)
-        {
-            this.PostMessage(address, string.Empty, null);
-        }
-
-        /// <summary>
-        /// メッセージ送信<br/>
-        /// </summary>
-        /// <param name="address">宛先</param><br/>
-        /// <param name="message">メッセージ</param><br/>
-        public void PostMessage(Enum address, string message)
-        {
-            this.PostMessage(address, message, null);
-        }
-
-        /// <summary>
-        /// メッセージ送信<br/>
-        /// </summary>
-        /// <param name="address">宛先</param><br/>
-        /// <param name="parameter">パラメーター</param><br/>
-        public void PostMessage(Enum address, object parameter)
-        {
-            this.PostMessage(address, string.Empty, parameter);
         }
 
         /// <summary>

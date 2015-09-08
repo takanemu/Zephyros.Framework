@@ -11,7 +11,7 @@ namespace Zephyros.Framework.EventArgs
         /// <summary>
         /// 宛先
         /// </summary>
-        public Enum Address { get; set; }
+        public int Address { get; set; }
 
         /// <summary>
         /// メッセージ

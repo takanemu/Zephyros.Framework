@@ -25,7 +25,7 @@ namespace Zephyros.Framework.Mixins
 
         private sealed class Fields
         {
-            internal Dictionary<Enum, VariableChangeDelegate> DelegateMap = new Dictionary<Enum, VariableChangeDelegate>();
+            internal Dictionary<int, VariableChangeDelegate> DelegateMap = new Dictionary<int, VariableChangeDelegate>();
         }
 
         public static void Construction(this MViewModelVariableShareProvider map, object target)
@@ -37,35 +37,35 @@ namespace Zephyros.Framework.Mixins
             {
                 if (method.IsDefined(typeof(GlobalVariableManagerAttribute), false))
                 {
-                    Enum ekey = GetDataKey(method);
+                    Enum ekey = (Enum)GetDataKey(method);
 
                     if (ekey != null)
                     {
                         var dmap = table.GetOrCreateValue(map).DelegateMap;
 
-                        if (!dmap.ContainsKey(ekey))
+                        int index = Convert.ToInt32(ekey);
+
+                        if (!dmap.ContainsKey(index))
                         {
                             var dg = (VariableChangeDelegate)Delegate.CreateDelegate(typeof(VariableChangeDelegate), target, method);
 
                             // デリゲートとして登録
-                            dmap.Add(ekey, dg);
+                            dmap.Add(index, dg);
                         }
                     }
                 }
             }
         }
 
-        public static Enum GetDataKey(MethodInfo minfo)
+        public static object GetDataKey(MethodInfo minfo)
         {
             var items = (GlobalVariableManagerAttribute[])minfo.GetCustomAttributes(typeof(GlobalVariableManagerAttribute), false);
 
-            if (items.Length == 0)
+            if (items.Length > 0)
             {
-                return null;
+                return items[0].Key;
             }
-            GlobalVariableManagerAttribute my = (GlobalVariableManagerAttribute)items[0];
-
-            return (Enum)my.Key;
+            return null;
         }
 
         public static void CallFunction(this MViewModelVariableShareProvider map, VariableChangeEventArgs args)
